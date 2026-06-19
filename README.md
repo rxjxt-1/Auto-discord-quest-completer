@@ -251,6 +251,7 @@ How to use this script:
 })();
 ```
 </details>
+
 > [!TIP]
 > **Can't paste the code?** If the console blocks you, simply type `allow pasting` and hit **Enter** first.
 

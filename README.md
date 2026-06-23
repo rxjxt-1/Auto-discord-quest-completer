@@ -38,221 +38,435 @@ How to use this script:
 
 ```javascript
 (async () => {
-    // --- ADVANCED CYBERPUNK BOOT SEQUENCE ---
+    // ==========================================
+    // 1. DUPLICATE PREVENTION & CLEANUP
+    // ==========================================
+    if (window.rxjxtIsRunning) {
+        alert("⚠️ RXJXT TOOL IS ALREADY RUNNING!\nMultiple dashboards prevented. Please check your screen.");
+        console.warn("%c[ RXJXT ] TOOL ALREADY ACTIVE!", "color: #ff003c; font-weight: bold; font-size: 14px;");
+        return;
+    }
+    window.rxjxtIsRunning = true;
+    console.clear();
     const sleep = ms => new Promise(res => setTimeout(res, ms));
-    
-    const renderFrame = (percent, filledStr, emptyStr, status) => {
-        console.clear();
-        console.log(
-            "%c" +
-            "██████╗ ██╗  ██╗    ██╗██╗  ██╗████████╗\n" +
-            "██╔══██╗╚██╗██╔╝    ██║╚██╗██╔╝╚══██╔══╝\n" +
-            "██████╔╝ ╚███╔╝     ██║ ╚███╔╝    ██║   \n" +
-            "██╔══██╗ ██╔██╗██   ██║ ██╔██╗    ██║   \n" +
-            "██║  ██║██╔╝ ██╗╚█████╔╝██╔╝ ██╗  ██║   \n" +
-            "╚═╝  ╚═╝╚═╝  ╚═╝ ╚════╝ ╚═╝  ╚═╝  ╚═╝   \n",
-            "color: #ff0055; font-size: 16px; font-weight: bold; text-shadow: 0 0 15px #ff0055; font-family: 'Courier New', monospace;"
-        );
-        console.log(
-            `%c\n  SYSTEM BOOT: [${filledStr}${emptyStr}] ${percent}%\n\n  > ${status}\n`, 
-            "color: #00ffcc; font-size: 14px; font-weight: bold; text-shadow: 0 0 8px #00ffcc; font-family: 'Courier New', monospace;"
-        );
+
+    const rxjxtLog = (msg, type = "info") => {
+        const colors = { info: "#00f3ff", success: "#fcee0a", warn: "#ff9d00", error: "#ff003c", brand: "#ff003c", finish: "#43b581" };
+        const color = colors[type] || colors.info;
+        
+        console.log(`%c[ RXJXT ]%c ${msg}`, `color: #000; background: ${color}; font-weight: bold; padding: 2px 6px; border-radius: 3px;`, `color: ${color}; font-weight: bold; padding-left: 5px; text-shadow: 0 0 5px ${color};`);
+
+        const logBox = document.getElementById('rxjxt-terminal');
+        if (logBox) {
+            const time = new Date().toLocaleTimeString('en-US', { hour12: false });
+            const logEntry = document.createElement('div');
+            logEntry.innerHTML = `<span style="color: rgba(255,255,255,0.4);">[${time}]</span> <span style="color: ${color}; text-shadow: 0 0 3px ${color};">${msg}</span>`;
+            logBox.appendChild(logEntry);
+            logBox.scrollTop = logBox.scrollHeight;
+        }
     };
 
-    const bootStatuses = [
-        "INITIALIZING RXJXT CORE...",
-        "BYPASSING DISCORD SECURITY PROTOCOLS...",
-        "INJECTING WEBPACK PAYLOADS...",
-        "FORGING GAME STATE STORES...",
-        "ENGINE FULLY COMPROMISED & READY."
-    ];
-
-    // Live Animated Loading Bar
-    for(let i = 0; i <= 20; i++) {
-        let status = bootStatuses[Math.floor((i / 20) * (bootStatuses.length - 1))];
-        renderFrame(i * 5, "█".repeat(i), "▒".repeat(20 - i), status);
-        await sleep(Math.random() * 80 + 40); // Glitchy, realistic loading speed
-    }
-
-    console.log(
-        "%c[⚡] RXJXT AUTOMATION ENGINE ACTIVE", 
-        "color: #000; font-size: 14px; font-weight: 900; background-color: #00ffcc; padding: 6px 20px; border-radius: 4px; border: 2px solid #fff;"
-    );
-    
-    // 👇 CLICKABLE PROFILE LINK 👇
-    console.log(
-        "%c💬 Developer / Support: https://discordapp.com/users/1262670730865283076", 
-        "color: #ff0055; font-size: 13px; font-weight: bold; padding: 5px; text-decoration: underline;"
-    );
-    
-    await sleep(800);
-
-    // --- CORE LOGIC (ENHANCED LOGGING) ---
-    delete window.$;
-    let wpRequire = webpackChunkdiscord_app.push([[Symbol()], {}, r => r]);
-    webpackChunkdiscord_app.pop();
-
-    let ApplicationStreamingStore = Object.values(wpRequire.c).find(x => x?.exports?.A?.__proto__?.getStreamerActiveStreamMetadata).exports.A;
-    let RunningGameStore = Object.values(wpRequire.c).find(x => x?.exports?.Ay?.getRunningGames).exports.Ay;
-    let QuestsStore = Object.values(wpRequire.c).find(x => x?.exports?.A?.__proto__?.getQuest).exports.A;
-    let ChannelStore = Object.values(wpRequire.c).find(x => x?.exports?.A?.__proto__?.getAllThreadsForParent).exports.A;
-    let GuildChannelStore = Object.values(wpRequire.c).find(x => x?.exports?.Ay?.getSFWDefaultChannel).exports.Ay;
-    let FluxDispatcher = Object.values(wpRequire.c).find(x => x?.exports?.h?.__proto__?.flushWaitQueue).exports.h;
-    let api = Object.values(wpRequire.c).find(x => x?.exports?.Bo?.get).exports.Bo;
-
-    const supportedTasks = ["WATCH_VIDEO", "PLAY_ON_DESKTOP", "STREAM_ON_DESKTOP", "PLAY_ACTIVITY", "WATCH_VIDEO_ON_MOBILE"]
-    let quests = [...QuestsStore.quests.values()].filter(x => x.userStatus?.enrolledAt && !x.userStatus?.completedAt && new Date(x.config.expiresAt).getTime() > Date.now() && supportedTasks.find(y => Object.keys((x.config.taskConfig ?? x.config.taskConfigV2).tasks).includes(y)))
-    let isApp = typeof DiscordNative !== "undefined"
-
-    if(quests.length === 0) {
-        console.log("%c[!] ZERO ACTIVE QUESTS FOUND. ENROLL FIRST!", "color: #fff; background: #ff3a3a; font-weight: bold; padding: 4px 8px; border-radius: 3px;");
-    } else {
-        let doJob = function() {
-            const quest = quests.pop()
-            if(!quest) return
-
-            const pid = Math.floor(Math.random() * 30000) + 1000
+    // ==========================================
+    // 2. SMART LIQUID GLASS UI INJECTION
+    // ==========================================
+    const injectLiquidUI = () => {
+        const style = document.createElement('style');
+        style.innerHTML = `
+            @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&family=Share+Tech+Mono&display=swap');
             
-            const applicationId = quest.config.application.id
-            const applicationName = quest.config.application.name
-            const questName = quest.config.messages.questName
-            const taskConfig = quest.config.taskConfig ?? quest.config.taskConfigV2
-            const taskName = supportedTasks.find(x => taskConfig.tasks[x] != null)
-            const secondsNeeded = taskConfig.tasks[taskName].target
-            let secondsDone = quest.userStatus?.progress?.[taskName]?.value ?? 0
+            #rxjxt-liquid-ui {
+                position: fixed; top: 40px; right: 40px; z-index: 9999999;
+                font-family: 'Share Tech Mono', monospace; color: #fff;
+            }
 
-            if(taskName === "WATCH_VIDEO" || taskName === "WATCH_VIDEO_ON_MOBILE") {
-                const speed = 7
-                const enrolledAt = new Date(quest.userStatus.enrolledAt).getTime()
-                let completed = false
-                let fn = async () => {			
-                    while(true) {
-                        const remaining = Math.min(speed, secondsNeeded - secondsDone)
-                        await new Promise(resolve => setTimeout(resolve, remaining * 1000))
+            /* Liquid Glass Dashboard */
+            #rxjxt-main-dash {
+                width: 380px;
+                background: rgba(15, 20, 25, 0.25); /* More transparent for liquid effect */
+                backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+                border: 1px solid rgba(0, 243, 255, 0.3);
+                box-shadow: 0 8px 32px 0 rgba(0, 243, 255, 0.15), inset 0 0 20px rgba(255,255,255,0.05);
+                border-radius: 16px; overflow: hidden;
+                transition: opacity 0.3s ease, transform 0.3s ease;
+                position: relative;
+            }
 
-                        const timestamp = secondsDone + speed
-                        const res = await api.post({url: `/quests/${quest.id}/video-progress`, body: {timestamp: Math.min(secondsNeeded, timestamp + Math.random())}})
-                        completed = res.body.completed_at != null
-                        secondsDone = Math.min(secondsNeeded, timestamp)
+            /* Header & Draggable Area */
+            .rxjxt-header {
+                background: linear-gradient(90deg, rgba(255,0,60,0.5) 0%, rgba(0,0,0,0.1) 100%);
+                padding: 15px 20px; display: flex; justify-content: space-between; align-items: center;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1); cursor: grab; position: relative; z-index: 3;
+            }
+            .rxjxt-header:active { cursor: grabbing; }
+            .rxjxt-brand-name { font-family: 'Rajdhani', sans-serif; font-size: 20px; font-weight: 700; letter-spacing: 2px; text-shadow: 0 0 10px #ff003c; pointer-events: none; }
+            
+            .rxjxt-controls { display: flex; gap: 15px; }
+            .rxjxt-btn-icon { color: #00f3ff; cursor: pointer; font-weight: bold; transition: 0.2s; font-size: 18px; }
+            .rxjxt-btn-icon:hover { color: #fff; text-shadow: 0 0 10px #fff; transform: scale(1.1); }
 
-                        if(timestamp >= secondsNeeded) {
-                            break
+            /* Body */
+            .rxjxt-body { padding: 20px; position: relative; z-index: 3; }
+            
+            /* Status */
+            .rxjxt-status-box { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 12px; }
+            #rxjxt-live-status { color: #fcee0a; font-weight: bold; text-shadow: 0 0 5px rgba(252, 238, 10, 0.5); }
+            #rxjxt-eta { color: #00f3ff; font-weight: bold; }
+
+            .rxjxt-label { font-size: 11px; color: rgba(255,255,255,0.7); text-transform: uppercase; margin-bottom: 6px; display: block; }
+            .rxjxt-value { font-size: 15px; color: #fff; text-shadow: 0 0 8px #00f3ff; margin-bottom: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: bold;}
+
+            /* Progress Bar */
+            .rxjxt-progress-wrapper {
+                width: 100%; height: 10px; background: rgba(0,0,0,0.4);
+                border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 5px;
+                position: relative; margin-bottom: 20px; overflow: hidden;
+            }
+            .rxjxt-progress-fill {
+                height: 100%; width: 0%; background: linear-gradient(90deg, #00f3ff, #fcee0a);
+                box-shadow: 0 0 10px rgba(252, 238, 10, 0.8); transition: width 0.4s ease;
+            }
+
+            /* Terminal */
+            .rxjxt-terminal-container {
+                background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255,255,255,0.1);
+                border-radius: 8px; padding: 10px; height: 100px; overflow-y: auto; font-size: 11px;
+            }
+            .rxjxt-terminal-container::-webkit-scrollbar { width: 4px; }
+            .rxjxt-terminal-container::-webkit-scrollbar-thumb { background: rgba(0, 243, 255, 0.5); border-radius: 4px;}
+
+            /* Minimized Logo (Draggable) */
+            #rxjxt-mini-dash {
+                width: 55px; height: 55px; border-radius: 50%;
+                background: rgba(15, 20, 25, 0.5); backdrop-filter: blur(15px);
+                border: 2px solid #00f3ff; box-shadow: 0 0 15px rgba(0, 243, 255, 0.5);
+                display: flex; justify-content: center; align-items: center;
+                cursor: grab; display: none; font-family: 'Rajdhani', sans-serif;
+                font-weight: bold; font-size: 12px; color: #fff;
+                animation: pulse-mini 2s infinite; position: absolute; top: 0; right: 0; z-index: 9999999;
+            }
+            #rxjxt-mini-dash:active { cursor: grabbing; }
+
+            /* Popup Overlay */
+            #rxjxt-popup {
+                position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+                background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
+                z-index: 10; display: none; flex-direction: column;
+                justify-content: center; align-items: center; text-align: center; padding: 20px;
+                box-sizing: border-box; border-radius: 16px;
+            }
+            .rxjxt-popup-title { color: #ff003c; font-size: 20px; font-weight: bold; margin-bottom: 10px; text-shadow: 0 0 10px #ff003c; }
+            .rxjxt-popup-text { color: #e0e0e0; font-size: 13px; margin-bottom: 20px; }
+            .rxjxt-action-btn {
+                background: rgba(0, 243, 255, 0.15); border: 1px solid #00f3ff; border-radius: 6px;
+                color: #00f3ff; padding: 10px 25px; font-family: inherit; font-weight: bold;
+                cursor: pointer; transition: 0.3s; box-shadow: 0 0 10px rgba(0, 243, 255, 0.2);
+            }
+            .rxjxt-action-btn:hover { background: #00f3ff; color: #000; box-shadow: 0 0 20px #00f3ff; }
+
+            @keyframes pulse-mini { 0%, 100% { box-shadow: 0 0 10px #00f3ff; } 50% { box-shadow: 0 0 20px #fcee0a; border-color: #fcee0a; } }
+        `;
+        document.head.appendChild(style);
+
+        document.body.insertAdjacentHTML('beforeend', `
+            <div id="rxjxt-liquid-ui">
+                <div id="rxjxt-mini-dash" title="Double Click to Expand">QUEST</div>
+                
+                <div id="rxjxt-main-dash">
+                    <div id="rxjxt-popup">
+                        <div class="rxjxt-popup-title" id="rxjxt-popup-title">WARNING</div>
+                        <div class="rxjxt-popup-text" id="rxjxt-popup-text">No active quests found.</div>
+                        <button class="rxjxt-action-btn" id="rxjxt-popup-btn">RETRY ENGINE</button>
+                    </div>
+
+                    <div class="rxjxt-header" id="rxjxt-drag-handle">
+                        <div class="rxjxt-brand-name">RXJXT Q-TOOL v8.1</div>
+                        <div class="rxjxt-controls">
+                            <span class="rxjxt-btn-icon" id="rxjxt-min-btn" title="Minimize">−</span>
+                            <span class="rxjxt-btn-icon" id="rxjxt-close-btn" title="Close">✕</span>
+                        </div>
+                    </div>
+                    <div class="rxjxt-body">
+                        <div class="rxjxt-status-box">
+                            <div id="rxjxt-live-status">AWAITING SYSTEM...</div>
+                            <div id="rxjxt-eta">ETA: --:--</div>
+                        </div>
+
+                        <span class="rxjxt-label">Target Name</span>
+                        <div class="rxjxt-value" id="rxjxt-current-quest">SEARCHING...</div>
+                        
+                        <span class="rxjxt-label">Progress <span id="rxjxt-pct" style="float:right; color:#fcee0a; font-weight:bold;">0%</span></span>
+                        <div class="rxjxt-progress-wrapper"><div class="rxjxt-progress-fill" id="rxjxt-bar"></div></div>
+
+                        <span class="rxjxt-label">Engine Terminal</span>
+                        <div class="rxjxt-terminal-container" id="rxjxt-terminal"></div>
+                    </div>
+                </div>
+            </div>
+        `);
+
+        // Smart Drag Logic (Prevents accidental clicks while dragging)
+        const makeDraggable = (element, handle) => {
+            let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+            handle.onmousedown = (e) => {
+                e.preventDefault();
+                pos3 = e.clientX; pos4 = e.clientY;
+                document.onmouseup = () => { document.onmouseup = null; document.onmousemove = null; };
+                document.onmousemove = (e) => {
+                    e.preventDefault();
+                    pos1 = pos3 - e.clientX; pos2 = pos4 - e.clientY;
+                    pos3 = e.clientX; pos4 = e.clientY;
+                    element.style.top = (element.offsetTop - pos2) + "px";
+                    element.style.left = (element.offsetLeft - pos1) + "px";
+                    element.style.right = "auto";
+                };
+            };
+        };
+
+        const uiWrapper = document.getElementById('rxjxt-liquid-ui');
+        makeDraggable(uiWrapper, document.getElementById('rxjxt-drag-handle'));
+        makeDraggable(uiWrapper, document.getElementById('rxjxt-mini-dash'));
+
+        // Setup Minimize/Maximize
+        document.getElementById('rxjxt-min-btn').onclick = () => {
+            document.getElementById('rxjxt-main-dash').style.display = 'none';
+            document.getElementById('rxjxt-mini-dash').style.display = 'flex';
+        };
+        
+        // Double click to maximize mini logo
+        document.getElementById('rxjxt-mini-dash').ondblclick = () => { 
+            document.getElementById('rxjxt-mini-dash').style.display = 'none';
+            document.getElementById('rxjxt-main-dash').style.display = 'block';
+        };
+        
+        document.getElementById('rxjxt-close-btn').onclick = () => {
+            if (window.rxjxtTimer) clearInterval(window.rxjxtTimer);
+            window.rxjxtIsRunning = false; // Reset status on close
+            uiWrapper.remove();
+        };
+    };
+
+    // Live UI Control
+    let currentSecondsLeft = 0;
+    const updateUI = (questName, current, total, status = "progress") => {
+        if(!document.getElementById('rxjxt-pct')) return;
+        if (total > 0) {
+            let pct = Math.min(100, Math.floor((current / total) * 100));
+            document.getElementById('rxjxt-bar').style.width = `${pct}%`;
+            document.getElementById('rxjxt-pct').innerText = `${pct}%`;
+            currentSecondsLeft = Math.max(0, total - current);
+        }
+        const statusEl = document.getElementById('rxjxt-live-status');
+        if(statusEl) statusEl.innerText = status;
+    };
+
+    const showPopup = (title, text, btnText, callback) => {
+        const popup = document.getElementById('rxjxt-popup');
+        document.getElementById('rxjxt-popup-title').innerText = title;
+        document.getElementById('rxjxt-popup-text').innerText = text;
+        const btn = document.getElementById('rxjxt-popup-btn');
+        btn.innerText = btnText;
+        btn.onclick = () => { popup.style.display = 'none'; callback(); };
+        popup.style.display = 'flex';
+    };
+
+    window.rxjxtTimer = setInterval(() => {
+        if (currentSecondsLeft > 0) {
+            currentSecondsLeft--;
+            let mins = Math.floor(currentSecondsLeft / 60).toString().padStart(2, '0');
+            let secs = (currentSecondsLeft % 60).toString().padStart(2, '0');
+            const etaEl = document.getElementById('rxjxt-eta');
+            if(etaEl) etaEl.innerText = `ETA: ${mins}:${secs}`;
+        }
+    }, 1000);
+
+    // ==========================================
+    // 3. CORE ENGINE & SMART AUTOMATION
+    // ==========================================
+    injectLiquidUI();
+    rxjxtLog("RXJXT QUEST TOOL v8.1 MOUNTED...", "brand");
+    
+    const startEngine = async () => {
+        try {
+            delete window.$;
+            let wpRequire = webpackChunkdiscord_app.push([[Symbol()], {}, r => r]);
+            webpackChunkdiscord_app.pop();
+
+            let ApplicationStreamingStore = Object.values(wpRequire.c).find(x => x?.exports?.A?.__proto__?.getStreamerActiveStreamMetadata).exports.A;
+            let RunningGameStore = Object.values(wpRequire.c).find(x => x?.exports?.Ay?.getRunningGames).exports.Ay;
+            let QuestsStore = Object.values(wpRequire.c).find(x => x?.exports?.A?.__proto__?.getQuest).exports.A;
+            let ChannelStore = Object.values(wpRequire.c).find(x => x?.exports?.A?.__proto__?.getAllThreadsForParent).exports.A;
+            let GuildChannelStore = Object.values(wpRequire.c).find(x => x?.exports?.Ay?.getSFWDefaultChannel).exports.Ay;
+            let FluxDispatcher = Object.values(wpRequire.c).find(x => x?.exports?.h?.__proto__?.flushWaitQueue).exports.h;
+            let api = Object.values(wpRequire.c).find(x => x?.exports?.Bo?.get).exports.Bo;
+
+            const supportedTasks = ["WATCH_VIDEO", "PLAY_ON_DESKTOP", "STREAM_ON_DESKTOP", "PLAY_ACTIVITY", "WATCH_VIDEO_ON_MOBILE"];
+            const allQuests = [...QuestsStore.quests.values()].filter(x => new Date(x.config.expiresAt).getTime() > Date.now() && supportedTasks.find(y => Object.keys((x.config.taskConfig ?? x.config.taskConfigV2).tasks).includes(y)));
+            
+            // SMART AUTOMATION: Check Quests Status
+            let unacceptedQuests = allQuests.filter(x => !x.userStatus?.enrolledAt && !x.userStatus?.completedAt);
+            let acceptedQuests = allQuests.filter(x => x.userStatus?.enrolledAt && !x.userStatus?.completedAt);
+
+            // Logic: Agar quest accept nahi hai
+            if(acceptedQuests.length === 0 && unacceptedQuests.length > 0) {
+                rxjxtLog(`WARNING: QUEST NOT ACCEPTED!`, "warn");
+                showPopup(
+                    "QUEST ACTION REQUIRED", 
+                    `Bhai, quest section mein jao aur quest accept karo! Ya yaha Auto-Accept daba do taki tool apna kaam dobara shuru kare.`, 
+                    "AUTO-ACCEPT & RETRY", 
+                    async () => {
+                        rxjxtLog("AUTO-ACCEPT INITIATED...", "info");
+                        for(let q of unacceptedQuests) {
+                            try {
+                                await api.post({url: `/quests/${q.id}/enroll`});
+                                rxjxtLog(`Accepted: ${q.config.messages.questName}`, "success");
+                                await sleep(500);
+                            } catch(e) { rxjxtLog(`Failed to accept: ${q.id}`, "error"); }
                         }
+                        rxjxtLog("QUESTS ACCEPTED! RESTARTING ENGINE...", "brand");
+                        setTimeout(startEngine, 1000); // Tool dubara working shuru karega
                     }
-                    if(!completed) {
-                        await api.post({url: `/quests/${quest.id}/video-progress`, body: {timestamp: secondsNeeded}})
-                    }
-                    console.log("%c[🏆] QUEST FULLY MASTERED & REWARD UNLOCKED!", "color: #000; background: #00ff00; font-weight: 900; padding: 5px 10px; border-radius: 3px;");
-                    doJob()
+                );
+                return;
+            }
+
+            if(acceptedQuests.length === 0 && unacceptedQuests.length === 0) {
+                rxjxtLog("NO ELIGIBLE QUESTS FOUND.", "error");
+                showPopup("NO QUESTS", "Sari quests complete ho gayi hain ya koi nayi quest available nahi hai.", "RETRY ENGINE", () => { startEngine(); });
+                return;
+            }
+
+            let isApp = typeof DiscordNative !== "undefined";
+
+            let doJob = async function() {
+                const quest = acceptedQuests.pop();
+                if(!quest) {
+                    rxjxtLog("ALL TASKS FINISHED. ENGINE STANDBY.", "finish");
+                    updateUI("ALL QUESTS DONE", 100, 100, "SYSTEM COMPLETE");
+                    return;
                 }
-                fn()
-                console.log(`%c[RXJXT-SYNC]%c Hijacking video stream for: ${questName}`, "color: #00ffcc; font-weight: bold;", "color: #b9bbbe;");
-            } else if(taskName === "PLAY_ON_DESKTOP") {
-                if(!isApp) {
-                    console.log("%c[!] BROWSER DETECTED. OPEN DISCORD DESKTOP APP FOR THIS MODULE!", "color: #000; background: #faa61a; font-weight: bold; padding: 4px;");
-                } else {
-                    api.get({url: `/applications/public?application_ids=${applicationId}`}).then(res => {
-                        const appData = res.body[0]
-                        const exeName = appData.executables?.find(x => x.os === "win32")?.name?.replace(">","") ?? appData.name.replace(/[\/\\:*?"<>|]/g, "")
-                        
-                        const fakeGame = {
-                            cmdLine: `C:\\Program Files\\${appData.name}\\${exeName}`,
-                            exeName,
-                            exePath: `c:/program files/${appData.name.toLowerCase()}/${exeName}`,
-                            hidden: false,
-                            isLauncher: false,
-                            id: applicationId,
-                            name: appData.name,
-                            pid: pid,
-                            pidPath: [pid],
-                            processName: appData.name,
-                            start: Date.now(),
+
+                const pid = Math.floor(Math.random() * 30000) + 1000;
+                const applicationId = quest.config.application.id;
+                const applicationName = quest.config.application.name;
+                const questName = quest.config.messages.questName;
+                const taskConfig = quest.config.taskConfig ?? quest.config.taskConfigV2;
+                const taskName = supportedTasks.find(x => taskConfig.tasks[x] != null);
+                const secondsNeeded = taskConfig.tasks[taskName].target;
+                let secondsDone = quest.userStatus?.progress?.[taskName]?.value ?? 0;
+
+                rxjxtLog(`TARGET LOCK: ${questName}`, "info");
+                document.getElementById('rxjxt-current-quest').innerText = questName;
+                updateUI(questName, secondsDone, secondsNeeded, "IN PROGRESS...");
+
+                const finishQuest = async () => {
+                    rxjxtLog(`[✔] QUEST COMPLETE: ${questName}`, "finish");
+                    updateUI(questName, secondsNeeded, secondsNeeded, "SUCCESS!");
+                    await sleep(2000);
+                    doJob();
+                };
+
+                // GRIND LOGIC
+                if(taskName === "WATCH_VIDEO" || taskName === "WATCH_VIDEO_ON_MOBILE") {
+                    const speed = 7;
+                    let completed = false;
+                    let fn = async () => {
+                        rxjxtLog(`SPOOFING VIDEO METRICS...`, "warn");
+                        while(true) {
+                            const remaining = Math.min(speed, secondsNeeded - secondsDone);
+                            await new Promise(resolve => setTimeout(resolve, remaining * 1000));
+                            const timestamp = secondsDone + speed;
+                            const res = await api.post({url: `/quests/${quest.id}/video-progress`, body: {timestamp: Math.min(secondsNeeded, timestamp + Math.random())}});
+                            completed = res.body.completed_at != null;
+                            secondsDone = Math.min(secondsNeeded, timestamp);
+
+                            updateUI(questName, secondsDone, secondsNeeded, "IN PROGRESS...");
+                            if(timestamp >= secondsNeeded) break;
                         }
-                        const realGames = RunningGameStore.getRunningGames()
-                        const fakeGames = [fakeGame]
-                        const realGetRunningGames = RunningGameStore.getRunningGames
-                        const realGetGameForPID = RunningGameStore.getGameForPID
-                        RunningGameStore.getRunningGames = () => fakeGames
-                        RunningGameStore.getGameForPID = (pid) => fakeGames.find(x => x.pid === pid)
-                        FluxDispatcher.dispatch({type: "RUNNING_GAMES_CHANGE", removed: realGames, added: [fakeGame], games: fakeGames})
-                        
+                        if(!completed) await api.post({url: `/quests/${quest.id}/video-progress`, body: {timestamp: secondsNeeded}});
+                        finishQuest();
+                    }
+                    fn();
+                } 
+                else if(taskName === "PLAY_ON_DESKTOP") {
+                    if(!isApp) { rxjxtLog("ERROR: OPEN DISCORD APP", "error"); showPopup("APP REQUIRED", "Game quests only work in the Discord Desktop App.", "RETRY", startEngine); } else {
+                        api.get({url: `/applications/public?application_ids=${applicationId}`}).then(res => {
+                            const appData = res.body[0];
+                            const exeName = appData.executables?.find(x => x.os === "win32")?.name?.replace(">","") ?? appData.name.replace(/[\/\\:*?"<>|]/g, "");
+                            const fakeGame = { cmdLine: `C:\\Program Files\\${appData.name}\\${exeName}`, exeName, exePath: `c:/program files/${appData.name.toLowerCase()}/${exeName}`, hidden: false, isLauncher: false, id: applicationId, name: appData.name, pid, pidPath: [pid], processName: appData.name, start: Date.now() };
+
+                            const realGames = RunningGameStore.getRunningGames(); const fakeGames = [fakeGame];
+                            const realGetRunningGames = RunningGameStore.getRunningGames; const realGetGameForPID = RunningGameStore.getGameForPID;
+                            
+                            RunningGameStore.getRunningGames = () => fakeGames; RunningGameStore.getGameForPID = (p) => fakeGames.find(x => x.pid === p);
+                            FluxDispatcher.dispatch({type: "RUNNING_GAMES_CHANGE", removed: realGames, added: [fakeGame], games: fakeGames});
+                            
+                            rxjxtLog(`INJECTED GAME PID: ${applicationName}`, "warn");
+
+                            let fn = data => {
+                                let progress = quest.config.configVersion === 1 ? data.userStatus.streamProgressSeconds : Math.floor(data.userStatus.progress.PLAY_ON_DESKTOP.value);
+                                updateUI(questName, progress, secondsNeeded, "GRINDING...");
+                                
+                                if(progress >= secondsNeeded) {
+                                    RunningGameStore.getRunningGames = realGetRunningGames; RunningGameStore.getGameForPID = realGetGameForPID;
+                                    FluxDispatcher.dispatch({type: "RUNNING_GAMES_CHANGE", removed: [fakeGame], added: [], games: []});
+                                    FluxDispatcher.unsubscribe("QUESTS_SEND_HEARTBEAT_SUCCESS", fn);
+                                    finishQuest();
+                                }
+                            };
+                            FluxDispatcher.subscribe("QUESTS_SEND_HEARTBEAT_SUCCESS", fn);
+                        });
+                    }
+                }
+                else if(taskName === "STREAM_ON_DESKTOP") {
+                    if(!isApp) { rxjxtLog("ERROR: OPEN DISCORD APP", "error"); showPopup("APP REQUIRED", "Stream quests only work in the Desktop App.", "RETRY", startEngine); } else {
+                        let realFunc = ApplicationStreamingStore.getStreamerActiveStreamMetadata;
+                        ApplicationStreamingStore.getStreamerActiveStreamMetadata = () => ({ id: applicationId, pid, sourceName: null });
+                        rxjxtLog(`SPOOFING STREAM METADATA: ${applicationName}`, "warn");
+
                         let fn = data => {
-                            let progress = quest.config.configVersion === 1 ? data.userStatus.streamProgressSeconds : Math.floor(data.userStatus.progress.PLAY_ON_DESKTOP.value)
-                            console.log(`%c[RXJXT-PULSE]%c Payload Progress: ${progress}/${secondsNeeded}`, "color: #ff0055; font-weight: bold;", "color: #fff;");
+                            let progress = quest.config.configVersion === 1 ? data.userStatus.streamProgressSeconds : Math.floor(data.userStatus.progress.STREAM_ON_DESKTOP.value);
+                            updateUI(questName, progress, secondsNeeded, "STREAMING...");
                             
                             if(progress >= secondsNeeded) {
-                                console.log("%c[🏆] QUEST FULLY MASTERED & REWARD UNLOCKED!", "color: #000; background: #00ff00; font-weight: 900; padding: 5px 10px; border-radius: 3px;");
-                                
-                                RunningGameStore.getRunningGames = realGetRunningGames
-                                RunningGameStore.getGameForPID = realGetGameForPID
-                                FluxDispatcher.dispatch({type: "RUNNING_GAMES_CHANGE", removed: [fakeGame], added: [], games: []})
-                                FluxDispatcher.unsubscribe("QUESTS_SEND_HEARTBEAT_SUCCESS", fn)
-                                
-                                doJob()
+                                ApplicationStreamingStore.getStreamerActiveStreamMetadata = realFunc;
+                                FluxDispatcher.unsubscribe("QUESTS_SEND_HEARTBEAT_SUCCESS", fn);
+                                finishQuest();
+                            }
+                        };
+                        FluxDispatcher.subscribe("QUESTS_SEND_HEARTBEAT_SUCCESS", fn);
+                    }
+                }
+                else if(taskName === "PLAY_ACTIVITY") {
+                    const channelId = ChannelStore.getSortedPrivateChannels()[0]?.id ?? Object.values(GuildChannelStore.getAllGuilds()).find(x => x != null && x.VOCAL.length > 0).VOCAL[0].channel.id;
+                    const streamKey = `call:${channelId}:1`;
+                    
+                    let fn = async () => {
+                        rxjxtLog(`FORGING ACTIVITY SYNC...`, "warn");
+                        while(true) {
+                            const res = await api.post({url: `/quests/${quest.id}/heartbeat`, body: {stream_key: streamKey, terminal: false}});
+                            const progress = res.body.progress.PLAY_ACTIVITY.value;
+                            updateUI(questName, progress, secondsNeeded, "ACTIVITY SYNC...");
+                            
+                            await new Promise(resolve => setTimeout(resolve, 20 * 1000));
+                            if(progress >= secondsNeeded) {
+                                await api.post({url: `/quests/${quest.id}/heartbeat`, body: {stream_key: streamKey, terminal: true}});
+                                break;
                             }
                         }
-                        FluxDispatcher.subscribe("QUESTS_SEND_HEARTBEAT_SUCCESS", fn)
-                        
-                        console.log(`%c[RXJXT-SYNC]%c Spoofed client state to: [${applicationName}]. ETA: ${Math.ceil((secondsNeeded - secondsDone) / 60)} mins.`, "color: #00ffcc; font-weight: bold;", "color: #b9bbbe;");
-                    })
-                }
-            } else if(taskName === "STREAM_ON_DESKTOP") {
-                if(!isApp) {
-                    console.log("%c[!] BROWSER DETECTED. OPEN DISCORD DESKTOP APP FOR THIS MODULE!", "color: #000; background: #faa61a; font-weight: bold; padding: 4px;");
-                } else {
-                    let realFunc = ApplicationStreamingStore.getStreamerActiveStreamMetadata
-                    ApplicationStreamingStore.getStreamerActiveStreamMetadata = () => ({
-                        id: applicationId,
-                        pid,
-                        sourceName: null
-                    })
-                    
-                    let fn = data => {
-                        let progress = quest.config.configVersion === 1 ? data.userStatus.streamProgressSeconds : Math.floor(data.userStatus.progress.STREAM_ON_DESKTOP.value)
-                        console.log(`%c[RXJXT-PULSE]%c Payload Progress: ${progress}/${secondsNeeded}`, "color: #ff0055; font-weight: bold;", "color: #fff;");
-                        
-                        if(progress >= secondsNeeded) {
-                            console.log("%c[🏆] QUEST FULLY MASTERED & REWARD UNLOCKED!", "color: #000; background: #00ff00; font-weight: 900; padding: 5px 10px; border-radius: 3px;");
-                            
-                            ApplicationStreamingStore.getStreamerActiveStreamMetadata = realFunc
-                            FluxDispatcher.unsubscribe("QUESTS_SEND_HEARTBEAT_SUCCESS", fn)
-                            
-                            doJob()
-                        }
+                        finishQuest();
                     }
-                    FluxDispatcher.subscribe("QUESTS_SEND_HEARTBEAT_SUCCESS", fn)
-                    
-                    console.log(`%c[RXJXT-SYNC]%c Spoofing stream for: [${applicationName}]. Stream ANY window for ${Math.ceil((secondsNeeded - secondsDone) / 60)} mins.`, "color: #00ffcc; font-weight: bold;", "color: #b9bbbe;");
-                    console.log("%c[!] WARNING: You need at least 1 person/alt in the VC to farm progress.", "color: #ff0055; font-weight: bold; background: #220000; padding: 2px 5px;");
+                    fn();
                 }
-            } else if(taskName === "PLAY_ACTIVITY") {
-                const channelId = ChannelStore.getSortedPrivateChannels()[0]?.id ?? Object.values(GuildChannelStore.getAllGuilds()).find(x => x != null && x.VOCAL.length > 0).VOCAL[0].channel.id
-                const streamKey = `call:${channelId}:1`
-                
-                let fn = async () => {
-                    console.log(`%c[RXJXT-SYNC]%c Forging Heartbeat for: ${questName}`, "color: #00ffcc; font-weight: bold;", "color: #b9bbbe;");
-                    
-                    while(true) {
-                        const res = await api.post({url: `/quests/${quest.id}/heartbeat`, body: {stream_key: streamKey, terminal: false}})
-                        const progress = res.body.progress.PLAY_ACTIVITY.value
-                        console.log(`%c[RXJXT-PULSE]%c Payload Progress: ${progress}/${secondsNeeded}`, "color: #ff0055; font-weight: bold;", "color: #fff;");
-                        
-                        await new Promise(resolve => setTimeout(resolve, 20 * 1000))
-                        
-                        if(progress >= secondsNeeded) {
-                            await api.post({url: `/quests/${quest.id}/heartbeat`, body: {stream_key: streamKey, terminal: true}})
-                            break
-                        }
-                    }
-                    
-                    console.log("%c[🏆] QUEST FULLY MASTERED & REWARD UNLOCKED!", "color: #000; background: #00ff00; font-weight: 900; padding: 5px 10px; border-radius: 3px;");
-                    doJob()
-                }
-                fn()
-            }
+            };
+            doJob();
+        } catch (err) {
+            rxjxtLog("CRITICAL FAILURE IN CORE ENGINE.", "error");
+            showPopup("SYSTEM ERROR", "Make sure you are logged in and Discord APIs are accessible. Quest accept fail ho gaya hai ya network issue hai.", "RETRY ENGINE", startEngine);
+            console.error(err);
         }
-        doJob()
-    }
+    };
+
+    setTimeout(startEngine, 1000);
 })();
 ```
 </details>

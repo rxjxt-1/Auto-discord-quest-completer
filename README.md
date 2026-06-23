@@ -38,51 +38,56 @@ How to use this script:
 
 ```javascript
 (async () => {
-    // Clear console for a clean hacking/premium setup look
-    console.clear();
-
+    // --- ADVANCED CYBERPUNK BOOT SEQUENCE ---
     const sleep = ms => new Promise(res => setTimeout(res, ms));
+    
+    const renderFrame = (percent, filledStr, emptyStr, status) => {
+        console.clear();
+        console.log(
+            "%c" +
+            "██████╗ ██╗  ██╗    ██╗██╗  ██╗████████╗\n" +
+            "██╔══██╗╚██╗██╔╝    ██║╚██╗██╔╝╚══██╔══╝\n" +
+            "██████╔╝ ╚███╔╝     ██║ ╚███╔╝    ██║   \n" +
+            "██╔══██╗ ██╔██╗██   ██║ ██╔██╗    ██║   \n" +
+            "██║  ██║██╔╝ ██╗╚█████╔╝██╔╝ ██╗  ██║   \n" +
+            "╚═╝  ╚═╝╚═╝  ╚═╝ ╚════╝ ╚═╝  ╚═╝  ╚═╝   \n",
+            "color: #ff0055; font-size: 16px; font-weight: bold; text-shadow: 0 0 15px #ff0055; font-family: 'Courier New', monospace;"
+        );
+        console.log(
+            `%c\n  SYSTEM BOOT: [${filledStr}${emptyStr}] ${percent}%\n\n  > ${status}\n`, 
+            "color: #00ffcc; font-size: 14px; font-weight: bold; text-shadow: 0 0 8px #00ffcc; font-family: 'Courier New', monospace;"
+        );
+    };
 
-    // --- ANIMATED HEADER SEQUENCE ---
-    const frames = [
-        "▓▒░ RXJXT QUEST COMPLETER v3.0 ░▒▓",
-        "🎴 LOADING ENGINE CONTROLS...",
-        "⚡ DISCORD WEBPACK STORES HOOKED SUCCESSFULLY",
-        "🚀 PREPARING TO GRIND QUESTS..."
+    const bootStatuses = [
+        "INITIALIZING RXJXT CORE...",
+        "BYPASSING DISCORD SECURITY PROTOCOLS...",
+        "INJECTING WEBPACK PAYLOADS...",
+        "FORGING GAME STATE STORES...",
+        "ENGINE FULLY COMPROMISED & READY."
     ];
 
-    console.log(
-        "%c" + "=".repeat(46) + "\n" +
-        " _____  __   __       _ __   __ _______ \n" +
-        "|  __ \\ \\ \\ / /      | |\\ \\ / /|__   __|\n" +
-        "| |__) | \\ V /       | | \\ V /    | |   \n" +
-        "|  _  /   > <    _   | |  > <     | |   \n" +
-        "| | \\ \\  / . \\  | |__| | / . \\    | |   \n" +
-        "|_|  \\_\\/_/ \\_\\  \\____/ /_/ \\_\\   |_|   \n\n" +
-        "=".repeat(46),
-        "color: #ff3a3a; font-weight: bold; text-shadow: 0 0 8px #ff3a3a;"
-    );
-
-    // Dynamic step-by-step loading animation
-    for (let frame of frames) {
-        console.log(`%c[~] ${frame}`, "color: #faa61a; font-family: monospace; font-weight: bold;");
-        await sleep(400);
+    // Live Animated Loading Bar
+    for(let i = 0; i <= 20; i++) {
+        let status = bootStatuses[Math.floor((i / 20) * (bootStatuses.length - 1))];
+        renderFrame(i * 5, "█".repeat(i), "▒".repeat(20 - i), status);
+        await sleep(Math.random() * 80 + 40); // Glitchy, realistic loading speed
     }
 
     console.log(
-        "%c\n[+] SYSTEM INJECTED SUCCESSFULLY! AUTHORIZED BY RXJXT\n", 
-        "color: #ffffff; font-size: 14px; font-weight: bold; background-color: #43b581; padding: 6px 12px; border-radius: 4px;"
+        "%c[⚡] RXJXT AUTOMATION ENGINE ACTIVE", 
+        "color: #000; font-size: 14px; font-weight: 900; background-color: #00ffcc; padding: 6px 20px; border-radius: 4px; border: 2px solid #fff;"
     );
     
     // 👇 CLICKABLE PROFILE LINK 👇
     console.log(
-        "%c💬 View Profile / Message Me: https://discordapp.com/users/1262670730865283076", 
-        "color: #00BFFF; font-size: 13px; font-weight: bold; text-decoration: underline;"
+        "%c💬 Developer / Support: https://discordapp.com/users/1262670730865283076", 
+        "color: #ff0055; font-size: 13px; font-weight: bold; padding: 5px; text-decoration: underline;"
     );
     
-    await sleep(200);
+    await sleep(800);
 
-    // --- CORE LOGIC (UNTOUCHED & PRESERVED) ---
+    // --- CORE LOGIC (ENHANCED LOGGING) ---
     delete window.$;
     let wpRequire = webpackChunkdiscord_app.push([[Symbol()], {}, r => r]);
     webpackChunkdiscord_app.pop();
@@ -100,7 +105,7 @@ How to use this script:
     let isApp = typeof DiscordNative !== "undefined"
 
     if(quests.length === 0) {
-        console.log("%c[!] You don't have any uncompleted quests!", "color: #ff4747; font-weight: bold; font-size: 13px;");
+        console.log("%c[!] ZERO ACTIVE QUESTS FOUND. ENROLL FIRST!", "color: #fff; background: #ff3a3a; font-weight: bold; padding: 4px 8px; border-radius: 3px;");
     } else {
         let doJob = function() {
             const quest = quests.pop()
@@ -137,14 +142,14 @@ How to use this script:
                     if(!completed) {
                         await api.post({url: `/quests/${quest.id}/video-progress`, body: {timestamp: secondsNeeded}})
                     }
-                    console.log("%c[✔] Quest completed successfully!", "color: #43b581; font-weight: bold;");
+                    console.log("%c[🏆] QUEST FULLY MASTERED & REWARD UNLOCKED!", "color: #000; background: #00ff00; font-weight: 900; padding: 5px 10px; border-radius: 3px;");
                     doJob()
                 }
                 fn()
-                console.log(`%c[RXJXT] Spoofing video stream for: ${questName}`, "color: #00BFFF;");
+                console.log(`%c[RXJXT-SYNC]%c Hijacking video stream for: ${questName}`, "color: #00ffcc; font-weight: bold;", "color: #b9bbbe;");
             } else if(taskName === "PLAY_ON_DESKTOP") {
                 if(!isApp) {
-                    console.log("%c[!] This no longer works in browser for non-video quests. Please open the Discord Desktop App!", "color: #faa61a; font-weight: bold;");
+                    console.log("%c[!] BROWSER DETECTED. OPEN DISCORD DESKTOP APP FOR THIS MODULE!", "color: #000; background: #faa61a; font-weight: bold; padding: 4px;");
                 } else {
                     api.get({url: `/applications/public?application_ids=${applicationId}`}).then(res => {
                         const appData = res.body[0]
@@ -173,10 +178,10 @@ How to use this script:
                         
                         let fn = data => {
                             let progress = quest.config.configVersion === 1 ? data.userStatus.streamProgressSeconds : Math.floor(data.userStatus.progress.PLAY_ON_DESKTOP.value)
-                            console.log(`%c[RXJXT] Quest Runtime Progress: ${progress}/${secondsNeeded}`, "color: #b9bbbe;");
+                            console.log(`%c[RXJXT-PULSE]%c Payload Progress: ${progress}/${secondsNeeded}`, "color: #ff0055; font-weight: bold;", "color: #fff;");
                             
                             if(progress >= secondsNeeded) {
-                                console.log("%c[✔] Quest completed successfully!", "color: #43b581; font-weight: bold;");
+                                console.log("%c[🏆] QUEST FULLY MASTERED & REWARD UNLOCKED!", "color: #000; background: #00ff00; font-weight: 900; padding: 5px 10px; border-radius: 3px;");
                                 
                                 RunningGameStore.getRunningGames = realGetRunningGames
                                 RunningGameStore.getGameForPID = realGetGameForPID
@@ -188,12 +193,12 @@ How to use this script:
                         }
                         FluxDispatcher.subscribe("QUESTS_SEND_HEARTBEAT_SUCCESS", fn)
                         
-                        console.log(`%c[RXJXT] Spoofed local game state to: ${applicationName}. Waiting roughly ${Math.ceil((secondsNeeded - secondsDone) / 60)} minutes.`, "color: #00BFFF;");
+                        console.log(`%c[RXJXT-SYNC]%c Spoofed client state to: [${applicationName}]. ETA: ${Math.ceil((secondsNeeded - secondsDone) / 60)} mins.`, "color: #00ffcc; font-weight: bold;", "color: #b9bbbe;");
                     })
                 }
             } else if(taskName === "STREAM_ON_DESKTOP") {
                 if(!isApp) {
-                    console.log("%c[!] This no longer works in browser for non-video quests. Please open the Discord Desktop App!", "color: #faa61a; font-weight: bold;");
+                    console.log("%c[!] BROWSER DETECTED. OPEN DISCORD DESKTOP APP FOR THIS MODULE!", "color: #000; background: #faa61a; font-weight: bold; padding: 4px;");
                 } else {
                     let realFunc = ApplicationStreamingStore.getStreamerActiveStreamMetadata
                     ApplicationStreamingStore.getStreamerActiveStreamMetadata = () => ({
@@ -204,10 +209,10 @@ How to use this script:
                     
                     let fn = data => {
                         let progress = quest.config.configVersion === 1 ? data.userStatus.streamProgressSeconds : Math.floor(data.userStatus.progress.STREAM_ON_DESKTOP.value)
-                        console.log(`%c[RXJXT] Quest Runtime Progress: ${progress}/${secondsNeeded}`, "color: #b9bbbe;");
+                        console.log(`%c[RXJXT-PULSE]%c Payload Progress: ${progress}/${secondsNeeded}`, "color: #ff0055; font-weight: bold;", "color: #fff;");
                         
                         if(progress >= secondsNeeded) {
-                            console.log("%c[✔] Quest completed successfully!", "color: #43b581; font-weight: bold;");
+                            console.log("%c[🏆] QUEST FULLY MASTERED & REWARD UNLOCKED!", "color: #000; background: #00ff00; font-weight: 900; padding: 5px 10px; border-radius: 3px;");
                             
                             ApplicationStreamingStore.getStreamerActiveStreamMetadata = realFunc
                             FluxDispatcher.unsubscribe("QUESTS_SEND_HEARTBEAT_SUCCESS", fn)
@@ -217,20 +222,20 @@ How to use this script:
                     }
                     FluxDispatcher.subscribe("QUESTS_SEND_HEARTBEAT_SUCCESS", fn)
                     
-                    console.log(`%c[RXJXT] Spoofed voice stream to: ${applicationName}. Stream any active window in VC for ${Math.ceil((secondsNeeded - secondsDone) / 60)} minutes.`, "color: #00BFFF;");
-                    console.log("%c[!] Reminder: At least one other user or alt needs to be inside the VC for progress to tick.", "color: #faa61a; font-style: italic;");
+                    console.log(`%c[RXJXT-SYNC]%c Spoofing stream for: [${applicationName}]. Stream ANY window for ${Math.ceil((secondsNeeded - secondsDone) / 60)} mins.`, "color: #00ffcc; font-weight: bold;", "color: #b9bbbe;");
+                    console.log("%c[!] WARNING: You need at least 1 person/alt in the VC to farm progress.", "color: #ff0055; font-weight: bold; background: #220000; padding: 2px 5px;");
                 }
             } else if(taskName === "PLAY_ACTIVITY") {
                 const channelId = ChannelStore.getSortedPrivateChannels()[0]?.id ?? Object.values(GuildChannelStore.getAllGuilds()).find(x => x != null && x.VOCAL.length > 0).VOCAL[0].channel.id
                 const streamKey = `call:${channelId}:1`
                 
                 let fn = async () => {
-                    console.log(`%c[RXJXT] Forging Activity Heartbeat for: ${questName}`, "color: #00BFFF;");
+                    console.log(`%c[RXJXT-SYNC]%c Forging Heartbeat for: ${questName}`, "color: #00ffcc; font-weight: bold;", "color: #b9bbbe;");
                     
                     while(true) {
                         const res = await api.post({url: `/quests/${quest.id}/heartbeat`, body: {stream_key: streamKey, terminal: false}})
                         const progress = res.body.progress.PLAY_ACTIVITY.value
-                        console.log(`%c[RXJXT] Quest Runtime Progress: ${progress}/${secondsNeeded}`, "color: #b9bbbe;");
+                        console.log(`%c[RXJXT-PULSE]%c Payload Progress: ${progress}/${secondsNeeded}`, "color: #ff0055; font-weight: bold;", "color: #fff;");
                         
                         await new Promise(resolve => setTimeout(resolve, 20 * 1000))
                         
@@ -240,7 +245,7 @@ How to use this script:
                         }
                     }
                     
-                    console.log("%c[✔] Quest completed successfully!", "color: #43b581; font-weight: bold;");
+                    console.log("%c[🏆] QUEST FULLY MASTERED & REWARD UNLOCKED!", "color: #000; background: #00ff00; font-weight: 900; padding: 5px 10px; border-radius: 3px;");
                     doJob()
                 }
                 fn()

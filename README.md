@@ -39,16 +39,18 @@ How to use this script:
 ```javascript
 (async () => {
     // ==========================================
-    // 1. DUPLICATE PREVENTION & CLEANUP
+    // 1. SYSTEM CLEANUP & DUPLICATE PREVENTION
     // ==========================================
-    if (window.rxjxtIsRunning) {
-        alert("⚠️ RXJXT TOOL IS ALREADY RUNNING!\nMultiple dashboards prevented. Please check your screen.");
-        console.warn("%c[ RXJXT ] TOOL ALREADY ACTIVE!", "color: #ff003c; font-weight: bold; font-size: 14px;");
-        return;
-    }
-    window.rxjxtIsRunning = true;
     console.clear();
     const sleep = ms => new Promise(res => setTimeout(res, ms));
+
+    // DUPLICATE PREVENTION LOGIC
+    if (window.rxjxtEngineRunning) {
+        alert("⚠️ RXJXT TOOL is already running! Check your screen.");
+        console.warn("%c[ RXJXT ] TOOL ALREADY ACTIVE.", "color: #ff9d00; font-weight: bold;");
+        return;
+    }
+    window.rxjxtEngineRunning = true;
 
     const rxjxtLog = (msg, type = "info") => {
         const colors = { info: "#00f3ff", success: "#fcee0a", warn: "#ff9d00", error: "#ff003c", brand: "#ff003c", finish: "#43b581" };
@@ -67,7 +69,7 @@ How to use this script:
     };
 
     // ==========================================
-    // 2. SMART LIQUID GLASS UI INJECTION
+    // 2. LIQUID GLASS UI INJECTION
     // ==========================================
     const injectLiquidUI = () => {
         const style = document.createElement('style');
@@ -79,97 +81,105 @@ How to use this script:
                 font-family: 'Share Tech Mono', monospace; color: #fff;
             }
 
-            /* Liquid Glass Dashboard */
+            /* Main Dashboard */
             #rxjxt-main-dash {
                 width: 380px;
-                background: rgba(15, 20, 25, 0.25); /* More transparent for liquid effect */
-                backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-                border: 1px solid rgba(0, 243, 255, 0.3);
-                box-shadow: 0 8px 32px 0 rgba(0, 243, 255, 0.15), inset 0 0 20px rgba(255,255,255,0.05);
-                border-radius: 16px; overflow: hidden;
+                background: rgba(10, 15, 20, 0.45);
+                backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+                border: 1px solid rgba(0, 243, 255, 0.4);
+                box-shadow: 0 8px 32px 0 rgba(0, 243, 255, 0.2), inset 0 0 20px rgba(0,0,0,0.8);
+                border-radius: 12px; overflow: hidden;
                 transition: opacity 0.3s ease, transform 0.3s ease;
                 position: relative;
             }
 
+            /* Holographic overlay */
+            #rxjxt-main-dash::before {
+                content: ""; position: absolute; top:0; left:0; width:100%; height:100%;
+                background: repeating-linear-gradient(transparent, transparent 2px, rgba(0, 243, 255, 0.03) 3px);
+                pointer-events: none; z-index: 0;
+            }
+
             /* Header & Draggable Area */
             .rxjxt-header {
-                background: linear-gradient(90deg, rgba(255,0,60,0.5) 0%, rgba(0,0,0,0.1) 100%);
-                padding: 15px 20px; display: flex; justify-content: space-between; align-items: center;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.1); cursor: grab; position: relative; z-index: 3;
+                background: linear-gradient(90deg, rgba(255,0,60,0.8) 0%, rgba(0,0,0,0.2) 100%);
+                padding: 12px 20px; display: flex; justify-content: space-between; align-items: center;
+                border-bottom: 1px solid rgba(252, 238, 10, 0.5); cursor: grab; position: relative; z-index: 3;
             }
             .rxjxt-header:active { cursor: grabbing; }
-            .rxjxt-brand-name { font-family: 'Rajdhani', sans-serif; font-size: 20px; font-weight: 700; letter-spacing: 2px; text-shadow: 0 0 10px #ff003c; pointer-events: none; }
+            .rxjxt-brand-name { font-family: 'Rajdhani', sans-serif; font-size: 20px; font-weight: 700; letter-spacing: 2px; text-shadow: 0 0 10px #ff003c; animation: glitch 3s infinite; pointer-events: none; }
             
             .rxjxt-controls { display: flex; gap: 15px; }
-            .rxjxt-btn-icon { color: #00f3ff; cursor: pointer; font-weight: bold; transition: 0.2s; font-size: 18px; }
-            .rxjxt-btn-icon:hover { color: #fff; text-shadow: 0 0 10px #fff; transform: scale(1.1); }
+            .rxjxt-btn-icon { color: #00f3ff; cursor: pointer; font-weight: bold; transition: 0.2s; text-shadow: 0 0 5px #00f3ff; font-size: 16px; }
+            .rxjxt-btn-icon:hover { color: #fff; text-shadow: 0 0 15px #fff; transform: scale(1.2); }
 
             /* Body */
             .rxjxt-body { padding: 20px; position: relative; z-index: 3; }
             
             /* Status */
-            .rxjxt-status-box { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 12px; }
-            #rxjxt-live-status { color: #fcee0a; font-weight: bold; text-shadow: 0 0 5px rgba(252, 238, 10, 0.5); }
+            .rxjxt-status-box { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 11px; }
+            #rxjxt-live-status { color: #fcee0a; font-weight: bold; text-shadow: 0 0 5px #fcee0a; }
             #rxjxt-eta { color: #00f3ff; font-weight: bold; }
 
-            .rxjxt-label { font-size: 11px; color: rgba(255,255,255,0.7); text-transform: uppercase; margin-bottom: 6px; display: block; }
-            .rxjxt-value { font-size: 15px; color: #fff; text-shadow: 0 0 8px #00f3ff; margin-bottom: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: bold;}
+            .rxjxt-label { font-size: 11px; color: rgba(255,255,255,0.6); text-transform: uppercase; margin-bottom: 4px; display: block; }
+            .rxjxt-value { font-size: 14px; color: #fff; text-shadow: 0 0 8px #00f3ff; margin-bottom: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
             /* Progress Bar */
             .rxjxt-progress-wrapper {
-                width: 100%; height: 10px; background: rgba(0,0,0,0.4);
-                border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 5px;
+                width: 100%; height: 8px; background: rgba(0,0,0,0.6);
+                border: 1px solid rgba(0, 243, 255, 0.3); border-radius: 4px;
                 position: relative; margin-bottom: 20px; overflow: hidden;
             }
             .rxjxt-progress-fill {
                 height: 100%; width: 0%; background: linear-gradient(90deg, #00f3ff, #fcee0a);
-                box-shadow: 0 0 10px rgba(252, 238, 10, 0.8); transition: width 0.4s ease;
+                box-shadow: 0 0 15px #fcee0a; transition: width 0.3s ease; position: relative;
             }
 
             /* Terminal */
             .rxjxt-terminal-container {
-                background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255,255,255,0.1);
-                border-radius: 8px; padding: 10px; height: 100px; overflow-y: auto; font-size: 11px;
+                background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(255,0,60,0.3); border-left: 2px solid #ff003c;
+                border-radius: 4px; padding: 10px; height: 110px; overflow-y: auto; font-size: 11px;
             }
-            .rxjxt-terminal-container::-webkit-scrollbar { width: 4px; }
-            .rxjxt-terminal-container::-webkit-scrollbar-thumb { background: rgba(0, 243, 255, 0.5); border-radius: 4px;}
+            .rxjxt-terminal-container::-webkit-scrollbar { width: 3px; }
+            .rxjxt-terminal-container::-webkit-scrollbar-thumb { background: #00f3ff; }
 
-            /* Minimized Logo (Draggable) */
+            /* Minimized Logo */
             #rxjxt-mini-dash {
-                width: 55px; height: 55px; border-radius: 50%;
-                background: rgba(15, 20, 25, 0.5); backdrop-filter: blur(15px);
-                border: 2px solid #00f3ff; box-shadow: 0 0 15px rgba(0, 243, 255, 0.5);
+                width: 50px; height: 50px; border-radius: 50%;
+                background: rgba(10, 15, 20, 0.7); backdrop-filter: blur(10px);
+                border: 2px solid #ff003c; box-shadow: 0 0 15px #ff003c, inset 0 0 10px #00f3ff;
                 display: flex; justify-content: center; align-items: center;
                 cursor: grab; display: none; font-family: 'Rajdhani', sans-serif;
-                font-weight: bold; font-size: 12px; color: #fff;
-                animation: pulse-mini 2s infinite; position: absolute; top: 0; right: 0; z-index: 9999999;
+                font-weight: bold; font-size: 14px; color: #fff; text-shadow: 0 0 5px #fff;
+                animation: pulse-mini 2s infinite; position: relative; z-index: 9999999;
             }
             #rxjxt-mini-dash:active { cursor: grabbing; }
 
             /* Popup Overlay */
             #rxjxt-popup {
                 position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-                background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
+                background: rgba(0,0,0,0.85); backdrop-filter: blur(5px);
                 z-index: 10; display: none; flex-direction: column;
                 justify-content: center; align-items: center; text-align: center; padding: 20px;
-                box-sizing: border-box; border-radius: 16px;
+                box-sizing: border-box;
             }
-            .rxjxt-popup-title { color: #ff003c; font-size: 20px; font-weight: bold; margin-bottom: 10px; text-shadow: 0 0 10px #ff003c; }
-            .rxjxt-popup-text { color: #e0e0e0; font-size: 13px; margin-bottom: 20px; }
+            .rxjxt-popup-title { color: #ff003c; font-size: 18px; font-weight: bold; margin-bottom: 10px; text-shadow: 0 0 10px #ff003c; }
+            .rxjxt-popup-text { color: #aaa; font-size: 12px; margin-bottom: 20px; }
             .rxjxt-action-btn {
-                background: rgba(0, 243, 255, 0.15); border: 1px solid #00f3ff; border-radius: 6px;
-                color: #00f3ff; padding: 10px 25px; font-family: inherit; font-weight: bold;
+                background: rgba(0, 243, 255, 0.1); border: 1px solid #00f3ff;
+                color: #00f3ff; padding: 8px 20px; font-family: inherit; font-weight: bold;
                 cursor: pointer; transition: 0.3s; box-shadow: 0 0 10px rgba(0, 243, 255, 0.2);
             }
             .rxjxt-action-btn:hover { background: #00f3ff; color: #000; box-shadow: 0 0 20px #00f3ff; }
 
-            @keyframes pulse-mini { 0%, 100% { box-shadow: 0 0 10px #00f3ff; } 50% { box-shadow: 0 0 20px #fcee0a; border-color: #fcee0a; } }
+            @keyframes pulse-mini { 0%, 100% { box-shadow: 0 0 10px #ff003c; } 50% { box-shadow: 0 0 25px #00f3ff; border-color: #00f3ff; } }
+            @keyframes glitch { 0%, 100% { transform: translate(0); } 20% { transform: translate(-1px, 1px); } 40% { transform: translate(1px, -1px); } }
         `;
         document.head.appendChild(style);
 
         document.body.insertAdjacentHTML('beforeend', `
             <div id="rxjxt-liquid-ui">
-                <div id="rxjxt-mini-dash" title="Double Click to Expand">QUEST</div>
+                <div id="rxjxt-mini-dash">QUEST</div>
                 
                 <div id="rxjxt-main-dash">
                     <div id="rxjxt-popup">
@@ -179,9 +189,9 @@ How to use this script:
                     </div>
 
                     <div class="rxjxt-header" id="rxjxt-drag-handle">
-                        <div class="rxjxt-brand-name">RXJXT Q-TOOL v8.1</div>
+                        <div class="rxjxt-brand-name">RXJXT TOOL v7.1</div>
                         <div class="rxjxt-controls">
-                            <span class="rxjxt-btn-icon" id="rxjxt-min-btn" title="Minimize">−</span>
+                            <span class="rxjxt-btn-icon" id="rxjxt-min-btn" title="Minimize">_</span>
                             <span class="rxjxt-btn-icon" id="rxjxt-close-btn" title="Close">✕</span>
                         </div>
                     </div>
@@ -191,7 +201,7 @@ How to use this script:
                             <div id="rxjxt-eta">ETA: --:--</div>
                         </div>
 
-                        <span class="rxjxt-label">Target Name</span>
+                        <span class="rxjxt-label">Target Info</span>
                         <div class="rxjxt-value" id="rxjxt-current-quest">SEARCHING...</div>
                         
                         <span class="rxjxt-label">Progress <span id="rxjxt-pct" style="float:right; color:#fcee0a; font-weight:bold;">0%</span></span>
@@ -204,7 +214,7 @@ How to use this script:
             </div>
         `);
 
-        // Smart Drag Logic (Prevents accidental clicks while dragging)
+        // Setup Drag Logic
         const makeDraggable = (element, handle) => {
             let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
             handle.onmousedown = (e) => {
@@ -226,21 +236,19 @@ How to use this script:
         makeDraggable(uiWrapper, document.getElementById('rxjxt-drag-handle'));
         makeDraggable(uiWrapper, document.getElementById('rxjxt-mini-dash'));
 
-        // Setup Minimize/Maximize
+        // Setup Minimize/Maximize/Close
         document.getElementById('rxjxt-min-btn').onclick = () => {
             document.getElementById('rxjxt-main-dash').style.display = 'none';
             document.getElementById('rxjxt-mini-dash').style.display = 'flex';
         };
-        
-        // Double click to maximize mini logo
         document.getElementById('rxjxt-mini-dash').ondblclick = () => { 
             document.getElementById('rxjxt-mini-dash').style.display = 'none';
             document.getElementById('rxjxt-main-dash').style.display = 'block';
         };
-        
         document.getElementById('rxjxt-close-btn').onclick = () => {
             if (window.rxjxtTimer) clearInterval(window.rxjxtTimer);
-            window.rxjxtIsRunning = false; // Reset status on close
+            if (window.questWatcher) clearInterval(window.questWatcher);
+            window.rxjxtEngineRunning = false;
             uiWrapper.remove();
         };
     };
@@ -265,8 +273,16 @@ How to use this script:
         document.getElementById('rxjxt-popup-text').innerText = text;
         const btn = document.getElementById('rxjxt-popup-btn');
         btn.innerText = btnText;
-        btn.onclick = () => { popup.style.display = 'none'; callback(); };
+        btn.onclick = () => { 
+            popup.style.display = 'none'; 
+            if(callback) callback(); 
+        };
         popup.style.display = 'flex';
+    };
+
+    const hidePopup = () => {
+        const popup = document.getElementById('rxjxt-popup');
+        if(popup) popup.style.display = 'none';
     };
 
     window.rxjxtTimer = setInterval(() => {
@@ -283,8 +299,11 @@ How to use this script:
     // 3. CORE ENGINE & SMART AUTOMATION
     // ==========================================
     injectLiquidUI();
-    rxjxtLog("RXJXT QUEST TOOL v8.1 MOUNTED...", "brand");
+    rxjxtLog("RXJXT TOOL UI MOUNTED...", "brand");
     
+    let isGrinding = false;
+    window.questWatcher = null;
+
     const startEngine = async () => {
         try {
             delete window.$;
@@ -300,48 +319,54 @@ How to use this script:
             let api = Object.values(wpRequire.c).find(x => x?.exports?.Bo?.get).exports.Bo;
 
             const supportedTasks = ["WATCH_VIDEO", "PLAY_ON_DESKTOP", "STREAM_ON_DESKTOP", "PLAY_ACTIVITY", "WATCH_VIDEO_ON_MOBILE"];
-            const allQuests = [...QuestsStore.quests.values()].filter(x => new Date(x.config.expiresAt).getTime() > Date.now() && supportedTasks.find(y => Object.keys((x.config.taskConfig ?? x.config.taskConfigV2).tasks).includes(y)));
-            
-            // SMART AUTOMATION: Check Quests Status
-            let unacceptedQuests = allQuests.filter(x => !x.userStatus?.enrolledAt && !x.userStatus?.completedAt);
-            let acceptedQuests = allQuests.filter(x => x.userStatus?.enrolledAt && !x.userStatus?.completedAt);
-
-            // Logic: Agar quest accept nahi hai
-            if(acceptedQuests.length === 0 && unacceptedQuests.length > 0) {
-                rxjxtLog(`WARNING: QUEST NOT ACCEPTED!`, "warn");
-                showPopup(
-                    "QUEST ACTION REQUIRED", 
-                    `Bhai, quest section mein jao aur quest accept karo! Ya yaha Auto-Accept daba do taki tool apna kaam dobara shuru kare.`, 
-                    "AUTO-ACCEPT & RETRY", 
-                    async () => {
-                        rxjxtLog("AUTO-ACCEPT INITIATED...", "info");
-                        for(let q of unacceptedQuests) {
-                            try {
-                                await api.post({url: `/quests/${q.id}/enroll`});
-                                rxjxtLog(`Accepted: ${q.config.messages.questName}`, "success");
-                                await sleep(500);
-                            } catch(e) { rxjxtLog(`Failed to accept: ${q.id}`, "error"); }
-                        }
-                        rxjxtLog("QUESTS ACCEPTED! RESTARTING ENGINE...", "brand");
-                        setTimeout(startEngine, 1000); // Tool dubara working shuru karega
-                    }
-                );
-                return;
-            }
-
-            if(acceptedQuests.length === 0 && unacceptedQuests.length === 0) {
-                rxjxtLog("NO ELIGIBLE QUESTS FOUND.", "error");
-                showPopup("NO QUESTS", "Sari quests complete ho gayi hain ya koi nayi quest available nahi hai.", "RETRY ENGINE", () => { startEngine(); });
-                return;
-            }
-
             let isApp = typeof DiscordNative !== "undefined";
 
-            let doJob = async function() {
-                const quest = acceptedQuests.pop();
+            const checkAndStart = () => {
+                if (isGrinding) return;
+
+                const allQuests = [...QuestsStore.quests.values()].filter(x => new Date(x.config.expiresAt).getTime() > Date.now() && supportedTasks.find(y => Object.keys((x.config.taskConfig ?? x.config.taskConfigV2).tasks).includes(y)));
+                
+                let unacceptedQuests = allQuests.filter(x => !x.userStatus?.enrolledAt && !x.userStatus?.completedAt);
+                let acceptedQuests = allQuests.filter(x => x.userStatus?.enrolledAt && !x.userStatus?.completedAt);
+
+                if (acceptedQuests.length > 0) {
+                    // Quest is accepted -> Auto Start Tool
+                    if (window.questWatcher) { clearInterval(window.questWatcher); window.questWatcher = null; }
+                    hidePopup();
+                    isGrinding = true;
+                    rxjxtLog("QUEST ACCEPTED. ENGAGING AUTO-START...", "success");
+                    doJob(acceptedQuests, api, RunningGameStore, FluxDispatcher, ApplicationStreamingStore, ChannelStore, GuildChannelStore, isApp, supportedTasks);
+                } 
+                else if (unacceptedQuests.length > 0) {
+                    // Quests available but NOT accepted -> Show Warning Popup
+                    updateUI("WAITING FOR USER", 0, 100, "ACTION REQUIRED");
+                    showPopup(
+                        "QUEST NOT ACCEPTED", 
+                        "Bhai, Discord quest section mein jaakar quest ACCEPT karo! Jaise hi accept karoge, tool automatically start ho jayega.", 
+                        "RETRY CHECK", 
+                        () => checkAndStart()
+                    );
+                    
+                    // Auto-Polling: Keep checking every 3 seconds if the user accepted it manually
+                    if (!window.questWatcher) {
+                        rxjxtLog("WAITING FOR QUEST ACCEPTANCE...", "warn");
+                        window.questWatcher = setInterval(() => {
+                            if (!isGrinding) checkAndStart();
+                        }, 3000);
+                    }
+                } 
+                else {
+                    // No quests at all
+                    rxjxtLog("NO ELIGIBLE QUESTS FOUND.", "error");
+                    showPopup("NO QUESTS", "Sab quests complete ho chuki hain ya koi nayi available nahi hai.", "REFRESH", () => checkAndStart());
+                }
+            };
+
+            const doJob = async (questsArray, api, RunningGameStore, FluxDispatcher, ApplicationStreamingStore, ChannelStore, GuildChannelStore, isApp, supportedTasks) => {
+                const quest = questsArray.pop();
                 if(!quest) {
-                    rxjxtLog("ALL TASKS FINISHED. ENGINE STANDBY.", "finish");
-                    updateUI("ALL QUESTS DONE", 100, 100, "SYSTEM COMPLETE");
+                    isGrinding = false;
+                    checkAndStart(); // Loop back to see if there are more
                     return;
                 }
 
@@ -361,8 +386,9 @@ How to use this script:
                 const finishQuest = async () => {
                     rxjxtLog(`[✔] QUEST COMPLETE: ${questName}`, "finish");
                     updateUI(questName, secondsNeeded, secondsNeeded, "SUCCESS!");
-                    await sleep(2000);
-                    doJob();
+                    await sleep(2500);
+                    isGrinding = false;
+                    checkAndStart(); // Loop back to controller
                 };
 
                 // GRIND LOGIC
@@ -388,7 +414,11 @@ How to use this script:
                     fn();
                 } 
                 else if(taskName === "PLAY_ON_DESKTOP") {
-                    if(!isApp) { rxjxtLog("ERROR: OPEN DISCORD APP", "error"); showPopup("APP REQUIRED", "Game quests only work in the Discord Desktop App.", "RETRY", startEngine); } else {
+                    if(!isApp) { 
+                        rxjxtLog("ERROR: OPEN DISCORD DESKTOP APP", "error"); 
+                        isGrinding = false;
+                        showPopup("APP REQUIRED", "Game quests sirf Discord Desktop App mein kaam karti hain.", "RETRY", checkAndStart); 
+                    } else {
                         api.get({url: `/applications/public?application_ids=${applicationId}`}).then(res => {
                             const appData = res.body[0];
                             const exeName = appData.executables?.find(x => x.os === "win32")?.name?.replace(">","") ?? appData.name.replace(/[\/\\:*?"<>|]/g, "");
@@ -418,7 +448,11 @@ How to use this script:
                     }
                 }
                 else if(taskName === "STREAM_ON_DESKTOP") {
-                    if(!isApp) { rxjxtLog("ERROR: OPEN DISCORD APP", "error"); showPopup("APP REQUIRED", "Stream quests only work in the Desktop App.", "RETRY", startEngine); } else {
+                    if(!isApp) { 
+                        rxjxtLog("ERROR: OPEN DISCORD DESKTOP APP", "error"); 
+                        isGrinding = false;
+                        showPopup("APP REQUIRED", "Stream quests sirf Desktop App mein kaam karti hain.", "RETRY", checkAndStart); 
+                    } else {
                         let realFunc = ApplicationStreamingStore.getStreamerActiveStreamMetadata;
                         ApplicationStreamingStore.getStreamerActiveStreamMetadata = () => ({ id: applicationId, pid, sourceName: null });
                         rxjxtLog(`SPOOFING STREAM METADATA: ${applicationName}`, "warn");
@@ -458,10 +492,14 @@ How to use this script:
                     fn();
                 }
             };
-            doJob();
+
+            // Initial Kickoff
+            checkAndStart();
+
         } catch (err) {
+            isGrinding = false;
             rxjxtLog("CRITICAL FAILURE IN CORE ENGINE.", "error");
-            showPopup("SYSTEM ERROR", "Make sure you are logged in and Discord APIs are accessible. Quest accept fail ho gaya hai ya network issue hai.", "RETRY ENGINE", startEngine);
+            showPopup("SYSTEM ERROR", "Login check karo aur Discord APIs refresh hone do.", "RETRY ENGINE", () => setTimeout(startEngine, 1000));
             console.error(err);
         }
     };
